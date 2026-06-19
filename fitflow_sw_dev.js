@@ -1,12 +1,6 @@
-const FITFLOW_CACHE = 'fitflow-dev-shell-2026-06-09-01';
-const FITFLOW_CACHE_V2 = 'fitflow-dev-shell-2026-06-09-02';
-const FITFLOW_CACHE_V3 = 'fitflow-dev-shell-2026-06-09-03';
-const FITFLOW_CACHE_V6 = 'fitflow-dev-shell-2026-06-10-06';
-const FITFLOW_CACHE_V7 = 'fitflow-dev-shell-2026-06-10-07';
-const FITFLOW_CACHE_V8 = 'fitflow-dev-shell-2026-06-10-08';
-const FITFLOW_CACHE_V9 = 'fitflow-dev-shell-2026-06-12-11';
+const FITFLOW_CACHE_V12 = 'fitflow-dev-shell-2026-06-19-12';
 const FITFLOW_APP_SHELL = [
-  './fitflow_dev.html',
+  './fitflow.html',
   './fitflow_manifest_dev.webmanifest',
   './icon-dev-192.png',
   './icon-dev-512.png',
@@ -23,7 +17,7 @@ const FITFLOW_STATIC_HOSTS = new Set([
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(FITFLOW_CACHE_V9)
+    caches.open(FITFLOW_CACHE_V12)
       .then(cache => cache.addAll(FITFLOW_APP_SHELL))
       .then(() => self.skipWaiting())
   );
@@ -34,7 +28,7 @@ self.addEventListener('activate', event => {
     caches.keys()
       .then(keys => Promise.all(
         keys
-          .filter(key => key.startsWith('fitflow-dev-shell-') && key !== FITFLOW_CACHE_V9)
+          .filter(key => key.startsWith('fitflow-dev-shell-') && key !== FITFLOW_CACHE_V12)
           .map(key => caches.delete(key))
       ))
       .then(() => self.clients.claim())
@@ -46,18 +40,18 @@ self.addEventListener('message', event => {
 });
 
 async function networkFirstNavigation(request) {
-  const cache = await caches.open(FITFLOW_CACHE_V9);
+  const cache = await caches.open(FITFLOW_CACHE_V12);
   try {
     const response = await fetch(request);
-    if (response && response.ok) cache.put('./fitflow_dev.html', response.clone());
+    if (response && response.ok) cache.put('./fitflow.html', response.clone());
     return response;
   } catch (error) {
-    return (await cache.match('./fitflow_dev.html')) || Response.error();
+    return (await cache.match('./fitflow.html')) || Response.error();
   }
 }
 
 async function staleWhileRevalidate(request) {
-  const cache = await caches.open(FITFLOW_CACHE_V9);
+  const cache = await caches.open(FITFLOW_CACHE_V12);
   const cached = await cache.match(request);
   const network = fetch(request)
     .then(response => {

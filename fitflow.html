@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#06245f">
-<title>FITFLOW - Sistema de Pedidos de Venta</title>
-<link rel="manifest" href="fitflow_manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<title>FITFLOW DEV - Sistema de Pedidos de Venta</title>
+<link rel="manifest" href="fitflow_manifest_dev.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-dev-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-dev.png">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -482,7 +482,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
       <div id="hdr-logo-wrap">
         <div class="hdr-logo-text">
           <div class="hdr-title">FITFLOW</div>
-          <div class="hdr-sub">Centro Fitting</div>
+          <div class="hdr-sub">Centro Fitting · <span style="color:#f97316">DEV</span></div>
         </div>
       </div>
     </div>
@@ -841,7 +841,7 @@ function cloneStorageValue(v) {
 const LS = {
   get: k => {
     try {
-      const raw = localStorage.getItem('ff2_'+k);
+      const raw = localStorage.getItem('ff2dev_'+k);
       if (raw !== null) return JSON.parse(raw);
     } catch(e){}
     return Object.prototype.hasOwnProperty.call(LS_MEMORY, k) ? cloneStorageValue(LS_MEMORY[k]) : null;
@@ -849,10 +849,10 @@ const LS = {
   set: (k,v) => {
     LS_MEMORY[k] = cloneStorageValue(v);
     let saved = false;
-    try { localStorage.setItem('ff2_'+k, JSON.stringify(v)); saved = true; } catch(e){}
+    try { localStorage.setItem('ff2dev_'+k, JSON.stringify(v)); saved = true; } catch(e){}
     if (!saved && (k === 'orders' || k === 'deleted_orders')) {
       freeLocalStorageForCriticalData();
-      try { localStorage.setItem('ff2_'+k, JSON.stringify(v)); saved = true; } catch(e){}
+      try { localStorage.setItem('ff2dev_'+k, JSON.stringify(v)); saved = true; } catch(e){}
     }
     // Sync a Firebase en background (si está disponible)
     syncToFirebase(k, v);
@@ -863,19 +863,19 @@ const LS = {
 // setLocal sin sync (para updates desde Firebase)
 LS._setLocal = (k,v) => {
   LS_MEMORY[k] = cloneStorageValue(v);
-  try { localStorage.setItem('ff2_'+k, JSON.stringify(v)); return true; } catch(e) { return false; }
+  try { localStorage.setItem('ff2dev_'+k, JSON.stringify(v)); return true; } catch(e) { return false; }
 };
 
 function removeLocalCacheFamily(key) {
   try {
     const meta = LS.get(key+'_cache_meta');
     if (meta?.chunks) {
-      for (let i=0; i<meta.chunks; i++) localStorage.removeItem('ff2_'+key+'_cache_'+i);
+      for (let i=0; i<meta.chunks; i++) localStorage.removeItem('ff2dev_'+key+'_cache_'+i);
     }
-    localStorage.removeItem('ff2_'+key+'_cache_meta');
-    localStorage.removeItem('ff2_'+key);
-    localStorage.removeItem('ff2_'+key+'_version');
-    localStorage.removeItem('ff2_'+key+'_cache_status');
+    localStorage.removeItem('ff2dev_'+key+'_cache_meta');
+    localStorage.removeItem('ff2dev_'+key);
+    localStorage.removeItem('ff2dev_'+key+'_version');
+    localStorage.removeItem('ff2dev_'+key+'_cache_status');
   } catch(e) {}
 }
 
@@ -897,7 +897,7 @@ function invalidateCatalogCacheIfNeeded() {
   ].forEach(k => {
     try {
       delete LS_MEMORY[k];
-      localStorage.removeItem('ff2_'+k);
+      localStorage.removeItem('ff2dev_'+k);
     } catch(e) {}
   });
   catalogMasterState = {available:false, byCode:new Map(), products:[], meta:null, error:''};
@@ -918,15 +918,15 @@ function syncToFirebase(k, v) {
   try {
     const { setDoc, doc } = window._fbSDK;
     const db = window._fbDB;
-    if (k === 'vendors') setDoc(doc(db,'config','vendors'), {value: v}).catch(()=>{});
-    else if (k === 'payment_conditions') setDoc(doc(db,'config','payment_conditions'), {value: v}).catch(()=>{});
-    else if (k === 'email')  setDoc(doc(db,'config','email'),   {value: v}).catch(()=>{});
-    else if (k === 'company_config') setDoc(doc(db,'config','company_config'), {value: v}).catch(()=>{});
-    else if (k === 'product_visibility_rules') setDoc(doc(db,'config','product_visibility_rules'), {value: v, updatedAt:new Date().toISOString(), updatedBy:currentUser?.name||'Administrador'}).catch(()=>{});
-    else if (k === 'logo')   setDoc(doc(db,'config','logo'),    {value: v, version:LS.get('logo_version')||'local', updatedAt:LS.get('logo_updated_at')||null}).catch(()=>{});
+    if (k === 'vendors') setDoc(doc(db,'config_dev','vendors'), {value: v}).catch(()=>{});
+    else if (k === 'payment_conditions') setDoc(doc(db,'config_dev','payment_conditions'), {value: v}).catch(()=>{});
+    else if (k === 'email')  setDoc(doc(db,'config_dev','email'),   {value: v}).catch(()=>{});
+    else if (k === 'company_config') setDoc(doc(db,'config_dev','company_config'), {value: v}).catch(()=>{});
+    else if (k === 'product_visibility_rules') setDoc(doc(db,'config_dev','product_visibility_rules'), {value: v, updatedAt:new Date().toISOString(), updatedBy:currentUser?.name||'Administrador'}).catch(()=>{});
+    else if (k === 'logo')   setDoc(doc(db,'config_dev','logo'),    {value: v, version:LS.get('logo_version')||'local', updatedAt:LS.get('logo_updated_at')||null}).catch(()=>{});
     else if (k === 'orders') return; // Los pedidos se sincronizan de a uno para evitar reescribir todo el historial.
     else if (k === 'deleted_orders') syncDeletedOrdersToFirebase(v);
-    else if (k === 'clients_meta') setDoc(doc(db,'config','clients_meta'), v).catch(()=>{});
+    else if (k === 'clients_meta') setDoc(doc(db,'config_dev','clients_meta'), v).catch(()=>{});
   } catch(e) {}
 }
 
@@ -1019,7 +1019,7 @@ async function fetchFirebaseChunks({db, getDoc, doc, collectionName, total, vers
 function openBigCache() {
   return new Promise((resolve, reject) => {
     if (!window.indexedDB) return resolve(null);
-    const req = indexedDB.open('fitflow_big_cache', 1);
+    const req = indexedDB.open('fitflow_big_cache_dev', 1);
     req.onupgradeneeded = () => req.result.createObjectStore('kv');
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
@@ -1131,7 +1131,7 @@ async function setBigChunkCache(key, list, version) {
 
 function getLocalPersistentValue(k) {
   try {
-    const raw = localStorage.getItem('ff2_'+k);
+    const raw = localStorage.getItem('ff2dev_'+k);
     return raw !== null ? JSON.parse(raw) : null;
   } catch(e) { return null; }
 }
@@ -1175,7 +1175,7 @@ function setLocalChunkCache(key, list, version) {
     const chunks = Math.ceil(list.length / chunkSize);
     const oldMeta = LS.get(key+'_cache_meta');
     if (oldMeta?.chunks) {
-      for (let i=0; i<oldMeta.chunks; i++) localStorage.removeItem('ff2_'+key+'_cache_'+i);
+      for (let i=0; i<oldMeta.chunks; i++) localStorage.removeItem('ff2dev_'+key+'_cache_'+i);
     }
     for (let i=0; i<chunks; i++) {
       LS._setLocal(`${key}_cache_${i}`, list.slice(i*chunkSize, (i+1)*chunkSize));
@@ -1253,7 +1253,7 @@ async function setListCache(key, list, version) {
       reason:'No se pudo guardar en el navegador; se mantendrá solo mientras la app siga abierta'
     };
     try {
-      localStorage.setItem('ff2_'+key+'_cache_status', JSON.stringify(LS_MEMORY[key+'_cache_status']));
+      localStorage.setItem('ff2dev_'+key+'_cache_status', JSON.stringify(LS_MEMORY[key+'_cache_status']));
     } catch(e) {}
   }
   return ok;
@@ -1481,7 +1481,7 @@ function syncOrderToFirebase(order, reason='syncOrderToFirebase') {
   try {
     const { setDoc, doc } = window._fbSDK;
     logOrderFirebaseWrite(order, reason);
-    setDoc(doc(window._fbDB,'orders',orderKey(order)), order, {merge:true})
+    setDoc(doc(window._fbDB,'orders_dev',orderKey(order)), order, {merge:true})
       .then(()=>clearPendingOrderSyncKey(orderKey(order)))
       .catch(()=>savePendingOrderSync(order, reason));
   } catch(e) {
@@ -1499,7 +1499,7 @@ function syncDeletedOrderToFirebase(tombstone) {
   if (!shouldSyncDeletedOrderTombstone(tombstone)) return;
   try {
     const { setDoc, doc } = window._fbSDK;
-    setDoc(doc(window._fbDB,'orders_deleted',tombstoneKey(tombstone)), tombstone, {merge:true})
+    setDoc(doc(window._fbDB,'orders_deleted_dev',tombstoneKey(tombstone)), tombstone, {merge:true})
       .then(()=>markDeletedOrderTombstoneSynced(tombstone))
       .catch(()=>{});
   } catch(e) {}
@@ -1545,7 +1545,7 @@ async function getPdfLogoData() {
       const { getDoc, doc } = window._fbSDK;
       setLoadingText('Preparando logo del PDF...');
       const snap = await pdfNetworkTimeout(
-        getDoc(doc(window._fbDB, 'config', 'logo_document')),
+        getDoc(doc(window._fbDB, 'config_dev', 'logo_document')),
         8000,
         'Firebase no respondió al buscar el logo del PDF'
       );
@@ -1578,14 +1578,14 @@ async function syncPdfToFirebase(pdfRecord) {
       chunkSize
     };
     await pdfNetworkTimeout(
-      setDoc(doc(db,'order_pdfs',pdfRecord.docId), meta, {merge:true}),
+      setDoc(doc(db,'order_pdfs_dev',pdfRecord.docId), meta, {merge:true}),
       12000,
       'Firebase no respondió al guardar el resumen del PDF'
     );
     for (let i=0; i<chunks; i++) {
       setLoadingText(`Sincronizando PDF en Firebase ${i+1}/${chunks}...`);
       await pdfNetworkTimeout(
-        setDoc(doc(db,'order_pdf_chunks',`${pdfRecord.docId}_${String(i).padStart(4,'0')}`), {
+        setDoc(doc(db,'order_pdf_chunks_dev',`${pdfRecord.docId}_${String(i).padStart(4,'0')}`), {
           docId:pdfRecord.docId,
           vendedorEmail:normalizeEmail(pdfRecord.vendedorEmail || currentDocumentOwnerEmail()),
           index:i,
@@ -1606,7 +1606,7 @@ async function fetchPdfFromFirebase(docId) {
     const { getDoc, doc } = window._fbSDK;
     const db = window._fbDB;
     const metaSnap = await pdfNetworkTimeout(
-      getDoc(doc(db,'order_pdfs',docId)),
+      getDoc(doc(db,'order_pdfs_dev',docId)),
       8000,
       'Firebase no respondió al buscar el PDF'
     );
@@ -1616,7 +1616,7 @@ async function fetchPdfFromFirebase(docId) {
     for (let i=0; i<(meta.chunks||0); i++) {
       setLoadingText(`Descargando PDF guardado ${i+1}/${meta.chunks||0}...`);
       const chunkSnap = await pdfNetworkTimeout(
-        getDoc(doc(db,'order_pdf_chunks',`${docId}_${String(i).padStart(4,'0')}`)),
+        getDoc(doc(db,'order_pdf_chunks_dev',`${docId}_${String(i).padStart(4,'0')}`)),
         8000,
         `Firebase no respondió al descargar el PDF ${i+1}/${meta.chunks||0}`
       );
@@ -1635,14 +1635,14 @@ async function loadFromFirebase(opts={}) {
     const { getDoc, doc, getDocs, collection, query, where } = window._fbSDK;
     const db = window._fbDB;
     const [vSnap, eSnap, paySnap, companySnap, visibilitySnap, oSnap, cMetaSnap, pMetaSnap] = await Promise.all([
-      getDoc(doc(db,'config','vendors')),
-      getDoc(doc(db,'config','email')),
-      getDoc(doc(db,'config','payment_conditions')),
-      getDoc(doc(db,'config','company_config')),
-      getDoc(doc(db,'config','product_visibility_rules')),
-      getDoc(doc(db,'config','orders')),
-      getDoc(doc(db,'config','clients_meta')),
-      getDoc(doc(db,'config','products_meta'))
+      getDoc(doc(db,'config_dev','vendors')),
+      getDoc(doc(db,'config_dev','email')),
+      getDoc(doc(db,'config_dev','payment_conditions')),
+      getDoc(doc(db,'config_dev','company_config')),
+      getDoc(doc(db,'config_dev','product_visibility_rules')),
+      getDoc(doc(db,'config_dev','orders')),
+      getDoc(doc(db,'config_dev','clients_meta')),
+      getDoc(doc(db,'config_dev','products_meta'))
     ]);
 
     // Vendors
@@ -1676,8 +1676,8 @@ async function loadFromFirebase(opts={}) {
     let remoteDeleted = [];
     try {
       const deletedSource = isSupraAdmin()
-        ? collection(db,'orders_deleted')
-        : query(collection(db,'orders_deleted'), where('vendedorEmail','==',currentDocumentOwnerEmail()));
+        ? collection(db,'orders_deleted_dev')
+        : query(collection(db,'orders_deleted_dev'), where('vendedorEmail','==',currentDocumentOwnerEmail()));
       const deletedSnap = await getDocs(deletedSource);
       remoteDeleted = deletedSnap.docs.map(d => d.data()).filter(Boolean);
     } catch(e) {}
@@ -1692,8 +1692,8 @@ async function loadFromFirebase(opts={}) {
     let remoteOrders = [];
     try {
       const ordersSource = isSupraAdmin()
-        ? collection(db,'orders')
-        : query(collection(db,'orders'), where('vendedorEmail','==',currentDocumentOwnerEmail()));
+        ? collection(db,'orders_dev')
+        : query(collection(db,'orders_dev'), where('vendedorEmail','==',currentDocumentOwnerEmail()));
       const ordersSnap = await getDocs(ordersSource);
       remoteOrders = ordersSnap.docs.map(d => d.data()).filter(Boolean);
     } catch(e) {}
@@ -1738,7 +1738,7 @@ async function loadFromFirebase(opts={}) {
         showLoading('Preparando descarga de catalogo...');
         let remoteProds = null;
         try {
-          remoteProds = await fetchFirebaseChunks({db, getDoc, doc, collectionName:'products_chunks', total:meta.chunks, version:meta.version, label:'catalogo'});
+          remoteProds = await fetchFirebaseChunks({db, getDoc, doc, collectionName:'products_chunks_dev', total:meta.chunks, version:meta.version, label:'catalogo'});
         } finally {
           hideLoading();
         }
@@ -1796,7 +1796,7 @@ async function loadFromFirebase(opts={}) {
         showLoading('Preparando descarga de clientes...');
         let remoteClients = null;
         try {
-          remoteClients = await fetchFirebaseChunks({db, getDoc, doc, collectionName:'clients_chunks', total:meta.chunks, version:meta.version, label:'clientes'});
+          remoteClients = await fetchFirebaseChunks({db, getDoc, doc, collectionName:'clients_chunks_dev', total:meta.chunks, version:meta.version, label:'clientes'});
         } finally {
           hideLoading();
         }
@@ -1835,9 +1835,9 @@ async function preloadLoginConfig() {
     const { getDoc, doc } = window._fbSDK;
     const db = window._fbDB;
     const [vResult, eResult, payResult] = await Promise.allSettled([
-      getDoc(doc(db,'config','vendors')),
-      getDoc(doc(db,'config','email')),
-      getDoc(doc(db,'config','payment_conditions'))
+      getDoc(doc(db,'config_dev','vendors')),
+      getDoc(doc(db,'config_dev','email')),
+      getDoc(doc(db,'config_dev','payment_conditions'))
     ]);
     const vSnap = vResult.status === 'fulfilled' ? vResult.value : null;
     const eSnap = eResult.status === 'fulfilled' ? eResult.value : null;
@@ -2217,7 +2217,7 @@ function findAuthorizedVendorByEmail(email) {
 }
 
 function readFitFlowSession() {
-  try { return JSON.parse(localStorage.getItem('ff2_'+FITFLOW_SESSION_KEY) || 'null'); }
+  try { return JSON.parse(localStorage.getItem('ff2dev_'+FITFLOW_SESSION_KEY) || 'null'); }
   catch(e) { return null; }
 }
 function saveFitFlowSession(v={}, idx=0, authInfo={}) {
@@ -2225,7 +2225,7 @@ function saveFitFlowSession(v={}, idx=0, authInfo={}) {
   const email = normalizeEmail(authInfo.email || v.email || '');
   if (!['google','email'].includes(provider) || !email) return;
   const now = Date.now();
-  localStorage.setItem('ff2_'+FITFLOW_SESSION_KEY, JSON.stringify({
+  localStorage.setItem('ff2dev_'+FITFLOW_SESSION_KEY, JSON.stringify({
     email,
     provider,
     vendorName:v.name || '',
@@ -2236,13 +2236,13 @@ function saveFitFlowSession(v={}, idx=0, authInfo={}) {
   lastAuthRecheckAt = now;
 }
 function clearFitFlowSession() {
-  try { localStorage.removeItem('ff2_'+FITFLOW_SESSION_KEY); } catch(e) {}
+  try { localStorage.removeItem('ff2dev_'+FITFLOW_SESSION_KEY); } catch(e) {}
   lastAuthRecheckAt = 0;
 }
 async function fetchAuthorizedVendorByEmail(email) {
   if (!window._fbDB || !window._fbSDK?.getDoc) throw new Error('Firebase no disponible');
   const { getDoc, doc } = window._fbSDK;
-  const snap = await getDoc(doc(window._fbDB,'config','vendors'));
+  const snap = await getDoc(doc(window._fbDB,'config_dev','vendors'));
   if (snap.exists() && Array.isArray(snap.data().value)) {
     LS._setLocal('vendors', snap.data().value);
     buildLoginSelect();
@@ -3543,7 +3543,7 @@ async function loadManualContactsFromFirebase() {
   if (!window._fbDB || !window._fbSDK?.getDocs) return;
   try {
     const { getDocs, collection } = window._fbSDK;
-    const snap = await getDocs(collection(window._fbDB, 'client_manual_contacts'));
+    const snap = await getDocs(collection(window._fbDB, 'client_manual_contacts_dev'));
     const remote = snap.docs.map(d => d.data()).filter(Boolean);
     if (remote.length) {
       LS._setLocal('client_manual_contacts', mergeManualContacts(manualContactsMap(), remote));
@@ -3555,7 +3555,7 @@ async function loadManualContactsFromFirebase() {
 function syncManualClientContactToFirebase(contact) {
   if (!window._fbDB || !window._fbSDK?.setDoc || !contact?.key) return;
   const { setDoc, doc } = window._fbSDK;
-  setDoc(doc(window._fbDB, 'client_manual_contacts', encodeURIComponent(contact.key)), contact, {merge:true})
+  setDoc(doc(window._fbDB, 'client_manual_contacts_dev', encodeURIComponent(contact.key)), contact, {merge:true})
     .catch(e => console.log('Manual contact save error:', e?.message || e));
 }
 function getStoredClientEmail(c) {
@@ -3726,7 +3726,7 @@ async function loadTestClientsFromFirebase() {
   if (!isSupraAdmin() || !window._fbDB || !window._fbSDK?.getDocs) return;
   try {
     const { getDocs, collection } = window._fbSDK;
-    const snap = await getDocs(collection(window._fbDB, 'test_clients'));
+    const snap = await getDocs(collection(window._fbDB, 'test_clients_dev'));
     const remote = snap.docs.map(d => normalizeTestClient({...d.data(), id:d.data()?.id || d.id})).filter(c => c.id);
     if (remote.length) {
       const byId = new Map(testClients().map(c => [c.id, c]));
@@ -3741,13 +3741,13 @@ async function loadTestClientsFromFirebase() {
 function syncTestClientToFirebase(client) {
   if (!window._fbDB || !window._fbSDK?.setDoc || !client?.id) return;
   const { setDoc, doc } = window._fbSDK;
-  setDoc(doc(window._fbDB, 'test_clients', client.id), client, {merge:true})
+  setDoc(doc(window._fbDB, 'test_clients_dev', client.id), client, {merge:true})
     .catch(e => console.log('Test client save error:', e?.message || e));
 }
 function deleteTestClientFromFirebase(id) {
   if (!window._fbDB || !window._fbSDK?.deleteDoc || !id) return;
   const { deleteDoc, doc } = window._fbSDK;
-  deleteDoc(doc(window._fbDB, 'test_clients', id))
+  deleteDoc(doc(window._fbDB, 'test_clients_dev', id))
     .catch(e => console.log('Test client delete error:', e?.message || e));
 }
 function clientSearchPool() {
@@ -3791,7 +3791,7 @@ async function cleanManualContactPhones(variants=TEST_PHONE_CLEANUP_DEFAULTS) {
   if (window._fbDB && window._fbSDK?.getDocs) {
     const { getDocs, collection, setDoc, deleteDoc, doc } = window._fbSDK;
     try {
-      const snap = await getDocs(collection(window._fbDB, 'client_manual_contacts'));
+      const snap = await getDocs(collection(window._fbDB, 'client_manual_contacts_dev'));
       for (const d of snap.docs) {
         const data = d.data() || {};
         if (!phoneMatchesAny(data.phone, variants)) continue;
@@ -3799,8 +3799,8 @@ async function cleanManualContactPhones(variants=TEST_PHONE_CLEANUP_DEFAULTS) {
         delete next.phone;
         next.cleanedTestPhoneAt = new Date().toISOString();
         next.cleanedTestPhoneBy = currentUser?.name || 'Supra Admin';
-        if (next.email) await setDoc(doc(window._fbDB, 'client_manual_contacts', d.id), next, {merge:false});
-        else await deleteDoc(doc(window._fbDB, 'client_manual_contacts', d.id));
+        if (next.email) await setDoc(doc(window._fbDB, 'client_manual_contacts_dev', d.id), next, {merge:false});
+        else await deleteDoc(doc(window._fbDB, 'client_manual_contacts_dev', d.id));
         if (!cleaned.some(x => x.key === (data.key || d.id))) cleaned.push({key:data.key||d.id, nombre:data.nombre||'', rut:data.rut||'', phone:data.phone});
       }
     } catch(e) {
@@ -3866,7 +3866,7 @@ function syncClientContactReview(review) {
   LS._setLocal('client_contact_review_signatures', signatures);
   const { setDoc, doc } = window._fbSDK;
   const id = encodeURIComponent(review.key);
-  setDoc(doc(window._fbDB, 'client_contact_review', id), {
+  setDoc(doc(window._fbDB, 'client_contact_review_dev', id), {
     ...review,
     count:1,
     lastSeenAt:new Date().toISOString()
@@ -4143,7 +4143,7 @@ function buildDocumentBody(order, opts={}) {
     `Fecha: ${order.fecha}`,
     `Vendedor: ${vendorContact || order.vendedor || ''}`,
     `Documento: ${cfg.label}`,
-    `Condicion de pago: ${order.paymentCondition||''}`,
+    `Condición de pago: ${order.paymentCondition||''}`,
     '',
     'INFORMACIÓN DEL CLIENTE',
     sep,
@@ -4470,8 +4470,8 @@ async function buildOrderPdfRecord(order) {
   const documentLogo = await getPdfLogoData();
   const logoSize = await pdfImageSize(documentLogo);
   const cols = [
-    {k:'cod', label:'Codigo', x:margin, w:20, align:'left'},
-    {k:'desc', label:'Descripcion', x:margin+20, w:84.9, align:'left'},
+    {k:'cod', label:'Código', x:margin, w:20, align:'left'},
+    {k:'desc', label:'Descripción', x:margin+20, w:84.9, align:'left'},
     {k:'qty', label:'Cant.', x:margin+104.9, w:12, align:'center'},
     {k:'unit', label:'Unidad', x:margin+116.9, w:15, align:'center'},
     {k:'unitPrice', label:'P. Unitario', sub:'Neto / c IVA', x:margin+131.9, w:30, align:'right', headerAlign:'center'},
@@ -4529,7 +4529,7 @@ async function buildOrderPdfRecord(order) {
     const leftX = margin + 4, rightX = margin + 105, clientY = yy + 6.2;
     pdfLabelValueLine(pdf, 'Cliente:', order.cliente?.nombre || '', leftX, clientY, 96);
     pdfLabelValueLine(pdf, 'RUT:', order.cliente?.rut || '', leftX, clientY+6, 96);
-    pdfLabelValueLine(pdf, 'Direccion:', order.cliente?.direccion || '', leftX, clientY+12, 96);
+    pdfLabelValueLine(pdf, 'Dirección:', order.cliente?.direccion || '', leftX, clientY+12, 96);
     pdfLabelValueLine(pdf, 'Correo:', clientContact.email, leftX, clientY+18, 96);
     pdfLabelValueLine(pdf, 'Ciudad / Comuna:', [order.cliente?.ciudad, order.cliente?.comuna].filter(Boolean).join(' / '), rightX, clientY, 82);
     pdfLabelValueLine(pdf, 'Fecha:', pdfDateOnly(order.fecha), rightX, clientY+6, 82);
@@ -4606,7 +4606,7 @@ async function buildOrderPdfRecord(order) {
     cols.slice(1).forEach(c => pdf.line(c.x, rowY, c.x, rowY+rowH));
     const midY = rowY + rowH/2;
     pdf.setTextColor(...dark); pdf.setFont('helvetica','normal'); pdf.setFontSize(6.8);
-    pdf.text(pdfSafeText(item.cod || 'SIN CODIGO'), cols[0].x+2, midY+1);
+    pdf.text(pdfSafeText(item.cod || 'SIN CÓDIGO'), cols[0].x+2, midY+1);
     pdf.setFontSize(7.2); pdf.text(descLines, cols[1].x+2, descLines.length > 1 ? midY-1.5 : midY+1);
     pdf.text(String(item.qty||0), cols[2].x+cols[2].w/2, midY+1, {align:'center'});
     pdf.text(unitLabel(item.unidad) || '', cols[3].x+cols[3].w/2, midY+1, {align:'center'});
@@ -4651,9 +4651,9 @@ async function buildOrderPdfRecord(order) {
     ];
 
     pdf.setFillColor(255,255,255); pdf.setDrawColor(80,80,80); pdfRoundedRect(pdf, obsX, blockY, obsW, obsH, totalRadius, 'FD');
-    pdf.setFont('helvetica','bold'); pdf.setFontSize(7.5); pdf.setTextColor(...black); pdf.text('Condicion de pago:', obsX+3, blockY+5);
+    pdf.setFont('helvetica','bold'); pdf.setFontSize(7.5); pdf.setTextColor(...black); pdf.text('Condición de pago:', obsX+3, blockY+5);
     pdf.setFont('helvetica','normal'); pdf.setFontSize(7); pdf.setTextColor(...dark);
-    const payLines = pdfFitLines(pdf, order.paymentCondition || 'Sin condicion seleccionada', obsW-6, 1);
+    const payLines = pdfFitLines(pdf, order.paymentCondition || 'Sin condición seleccionada', obsW-6, 1);
     pdf.text(payLines, obsX+3, blockY+8.8);
     const obsTitleY = blockY + 13.2;
     pdf.setFont('helvetica','bold'); pdf.setFontSize(7.5); pdf.setTextColor(...black); pdf.text('Observaciones:', obsX+3, obsTitleY);
@@ -4693,7 +4693,7 @@ async function buildOrderPdfRecord(order) {
       drawFinalBlocks(finalBlockY);
       if (order.documentOffline) {
         pdf.setFont('helvetica','bold'); pdf.setFontSize(7); pdf.setTextColor(...black);
-        pdf.text('* Correlativo provisorio generado sin conexion.', margin, Math.min(pageBottom, finalBlockY+totalH+7));
+        pdf.text('* Correlativo provisorio generado sin conexión.', margin, Math.min(pageBottom, finalBlockY+totalH+7));
       }
     }
     drawTestClientWatermark();
@@ -6655,7 +6655,7 @@ async function productSourceList() {
   if (window._fbDB && window._fbSDK) {
     try {
       const {getDoc, doc} = window._fbSDK;
-      const metaSnap = await getDoc(doc(window._fbDB,'config','products_meta'));
+      const metaSnap = await getDoc(doc(window._fbDB,'config_dev','products_meta'));
       const meta = metaSnap.exists() ? metaSnap.data() : null;
       if (meta?.chunks && Number(meta.count || 0) > Number(sourceInfo.count || 0)) {
         setLoadingText('Recuperando catálogo completo desde Firebase...');
@@ -6663,7 +6663,7 @@ async function productSourceList() {
           db:window._fbDB,
           getDoc,
           doc,
-          collectionName:'products_chunks',
+          collectionName:'products_chunks_dev',
           total:meta.chunks,
           version:meta.version,
           label:'catálogo completo'
@@ -6741,11 +6741,11 @@ async function loadLogoFromFirebase(kind) {
   const db = window._fbDB;
   const localLogo = LS.get(cfg.local);
   const localVersion = LS.get(cfg.local+'_version');
-  const metaSnap = await getDoc(doc(db,'config',cfg.meta));
+  const metaSnap = await getDoc(doc(db,'config_dev',cfg.meta));
   if (metaSnap.exists() && metaSnap.data()?.version) {
     const meta = metaSnap.data();
     if (!localLogo || localVersion !== meta.version) {
-      const logoSnap = await getDoc(doc(db,'config',cfg.doc));
+      const logoSnap = await getDoc(doc(db,'config_dev',cfg.doc));
       if (logoSnap.exists() && logoSnap.data().value) {
         await setBigCache(cfg.local, logoSnap.data().value);
         LS._setLocal(cfg.local, logoSnap.data().value);
@@ -6761,7 +6761,7 @@ async function loadLogoFromFirebase(kind) {
     return;
   }
   if (kind !== 'login' && !localLogo && cfg.legacyDoc) {
-    const legacySnap = await getDoc(doc(db,'config',cfg.legacyDoc));
+    const legacySnap = await getDoc(doc(db,'config_dev',cfg.legacyDoc));
     if (legacySnap.exists() && legacySnap.data().value) {
       LS._setLocal(cfg.local, legacySnap.data().value);
       LS._setLocal(cfg.local+'_source', 'firebase_sin_version');
@@ -6802,8 +6802,8 @@ async function syncLogoToFirebase(kind, data, meta) {
   const cfg = LOGO_TYPES[kind] || LOGO_TYPES.login;
   const { setDoc, doc } = window._fbSDK;
   const db = window._fbDB;
-  await setDoc(doc(db,'config',cfg.doc), {value:data, ...meta});
-  await setDoc(doc(db,'config',cfg.meta), meta);
+  await setDoc(doc(db,'config_dev',cfg.doc), {value:data, ...meta});
+  await setDoc(doc(db,'config_dev',cfg.meta), meta);
 }
 
 async function uploadProds(inp) {
@@ -7035,7 +7035,7 @@ async function loadCatalogViewFromFirebase(id) {
   try {
     const { getDoc, doc } = window._fbSDK;
     const db = window._fbDB;
-    const collectionName = viewMeta.chunksCollection || (id === 'old' ? 'catalog_view_old_chunks' : 'catalog_view_new_chunks');
+    const collectionName = viewMeta.chunksCollection || (id === 'old' ? 'catalog_view_old_chunks_dev' : 'catalog_view_new_chunks_dev');
     if (!viewMeta?.version || !viewMeta?.chunks) return {...empty, available:true, error:'Metadata de vista incompleta'};
     const cacheKey = catalogViewCacheKey(id);
     const localInfo = await getListCacheInfo(cacheKey);
@@ -7065,7 +7065,7 @@ async function loadCatalogMasterFromFirebase(opts={}) {
   try {
     const { getDoc, doc } = window._fbSDK;
     const db = window._fbDB;
-    const metaSnap = await getDoc(doc(db,'config','catalog_master_meta'));
+    const metaSnap = await getDoc(doc(db,'config_dev','catalog_master_meta'));
     if (!metaSnap.exists()) return {...empty, error:'No existe catalog_master_meta'};
     const meta = metaSnap.data();
     if (!meta?.version || !meta?.chunks) return {...empty, meta, error:'Metadata maestro incompleta'};
@@ -7075,7 +7075,7 @@ async function loadCatalogMasterFromFirebase(opts={}) {
       const ready = cacheReadyReason(FITFLOW_MASTER_CATALOG_CACHE_KEY, meta, localInfo);
       if (ready.ready) return buildCatalogMasterState(localInfo.list, meta, '');
     }
-    const products = await fetchFirebaseChunks({db, getDoc, doc, collectionName:'catalog_master_chunks', total:meta.chunks, version:meta.version, label:'catalogo maestro'});
+    const products = await fetchFirebaseChunks({db, getDoc, doc, collectionName:'catalog_master_chunks_dev', total:meta.chunks, version:meta.version, label:'catalogo maestro'});
     if (!products?.length) return {...empty, meta, error:'No se pudo descargar catalogo maestro'};
     if (useCache) await setListCache(FITFLOW_MASTER_CATALOG_CACHE_KEY, products, meta.version);
     return buildCatalogMasterState(products, meta, '');
@@ -7088,7 +7088,7 @@ async function refreshCatalogViewsFromFirebase() {
     try {
       const { getDoc, doc } = window._fbSDK;
       const db = window._fbDB;
-      const viewsSnap = await getDoc(doc(db,'config','catalog_views_meta'));
+      const viewsSnap = await getDoc(doc(db,'config_dev','catalog_views_meta'));
       if (viewsSnap.exists() && Array.isArray(viewsSnap.data()?.views)) {
         catalogViewsState.meta = viewsSnap.data();
         LS._setLocal('catalog_views_meta', catalogViewsState.meta);
@@ -7380,14 +7380,14 @@ async function syncProductsToFirebase(list, meta) {
   ]);
   let previousChunks = 0;
   try {
-    const previousMetaSnap = await withTimeout(getDoc(doc(db,'config','products_meta')), 12000, 'Lectura resumen anterior');
+    const previousMetaSnap = await withTimeout(getDoc(doc(db,'config_dev','products_meta')), 12000, 'Lectura resumen anterior');
     const previousMeta = previousMetaSnap.exists() ? previousMetaSnap.data() : null;
     previousChunks = Number(previousMeta?.chunks || 0) || 0;
   } catch(e) {
     previousChunks = 0;
   }
   async function writeProductChunk(i) {
-    const ref = doc(db,'products_chunks',String(i).padStart(4,'0'));
+    const ref = doc(db,'products_chunks_dev',String(i).padStart(4,'0'));
     const payload = {
       index:i,
       version:meta.version,
@@ -7421,7 +7421,7 @@ async function syncProductsToFirebase(list, meta) {
     const ids = new Set();
     for (let i=chunks; i<previousChunks; i++) ids.add(String(i).padStart(4,'0'));
     try {
-      const snap = await withTimeout(getDocs(collection(db,'products_chunks')), 30000, 'Lectura paquetes existentes');
+      const snap = await withTimeout(getDocs(collection(db,'products_chunks_dev')), 30000, 'Lectura paquetes existentes');
       snap.docs.forEach(d => {
         const n = Number(d.id);
         if (Number.isInteger(n) && n >= chunks) ids.add(d.id);
@@ -7434,7 +7434,7 @@ async function syncProductsToFirebase(list, meta) {
       const id = orderedIds[i];
       stage = `limpieza ${i+1}/${orderedIds.length}`;
       setLoadingText(`Limpiando paquetes antiguos ${i+1}/${orderedIds.length}...`);
-      await withTimeout(deleteDoc(doc(db,'products_chunks',id)), 20000, `Limpieza paquete ${id}`);
+      await withTimeout(deleteDoc(doc(db,'products_chunks_dev',id)), 20000, `Limpieza paquete ${id}`);
       deleted++;
     }
     return deleted;
@@ -7449,17 +7449,17 @@ async function syncProductsToFirebase(list, meta) {
     const deletedOldChunks = await deleteOldProductChunks();
     stage = 'resumen';
     setLoadingText('Guardando resumen del catálogo...');
-    await withTimeout(setDoc(doc(db,'config','products_meta'), {...metaSummary, cleanedOldChunks:deletedOldChunks, previousChunks}), 45000, 'Resumen catálogo');
+    await withTimeout(setDoc(doc(db,'config_dev','products_meta'), {...metaSummary, cleanedOldChunks:deletedOldChunks, previousChunks}), 45000, 'Resumen catálogo');
     stage = 'log';
     setLoadingText('Guardando log de catálogo...');
     try {
-      await withTimeout(setDoc(doc(db,'config','product_import_log'), {...log, version:meta.version, updatedAt:meta.updatedAt, updatedBy:meta.updatedBy, fileName:meta.fileName||'', firebaseSync:{ok:true,stage:'verificado',elapsedMs:Date.now()-startedAt,lastChunk,totalChunks:chunks,version:meta.version,chunkSize,cleanedOldChunks:deletedOldChunks,previousChunks,at:new Date().toISOString()}}), 45000, 'Log catálogo');
+      await withTimeout(setDoc(doc(db,'config_dev','product_import_log'), {...log, version:meta.version, updatedAt:meta.updatedAt, updatedBy:meta.updatedBy, fileName:meta.fileName||'', firebaseSync:{ok:true,stage:'verificado',elapsedMs:Date.now()-startedAt,lastChunk,totalChunks:chunks,version:meta.version,chunkSize,cleanedOldChunks:deletedOldChunks,previousChunks,at:new Date().toISOString()}}), 45000, 'Log catálogo');
     } catch(e) {
       console.log('Product import log sync error:', e?.message || e);
     }
     stage = 'verificacion';
     setLoadingText('Verificando publicación en Firebase...');
-    const metaSnap = await withTimeout(getDoc(doc(db,'config','products_meta')), 45000, 'Verificación catálogo');
+    const metaSnap = await withTimeout(getDoc(doc(db,'config_dev','products_meta')), 45000, 'Verificación catálogo');
     const remoteMeta = metaSnap.exists() ? metaSnap.data() : null;
     if (!remoteMeta || remoteMeta.version !== meta.version || Number(remoteMeta.count||0) !== list.length || Number(remoteMeta.chunks||0) !== chunks) {
       throw new Error('Firebase no confirmó la versión publicada');
@@ -7646,14 +7646,14 @@ async function syncClientsToFirebase(list, meta) {
   ]);
   for (let i=0; i<chunks; i++) {
     setLoadingText(`Publicando clientes en Firebase ${i+1}/${chunks}...`);
-    await withTimeout(setDoc(doc(db,'clients_chunks',String(i).padStart(4,'0')), {
+    await withTimeout(setDoc(doc(db,'clients_chunks_dev',String(i).padStart(4,'0')), {
       index:i,
       version:meta.version,
       value:list.slice(i*chunkSize, (i+1)*chunkSize)
     }), 12000, `Clientes ${i+1}/${chunks}`);
   }
   setLoadingText('Guardando resumen de clientes...');
-  await withTimeout(setDoc(doc(db,'config','clients_meta'), {...meta, count:list.length, chunks, chunkSize}), 12000, 'Resumen clientes');
+  await withTimeout(setDoc(doc(db,'config_dev','clients_meta'), {...meta, count:list.length, chunks, chunkSize}), 12000, 'Resumen clientes');
 }
 
 function renderVendorList() {
@@ -7734,8 +7734,8 @@ async function previewVendorEmailMigration(vendorIndex, newEmailInput='') {
     const db=window._fbDB;
     const [newUserSnap, orderSnap, deletedSnap] = await Promise.all([
       getDoc(doc(db,'fitflow_users',newEmail)),
-      getDocs(query(collection(db,'orders'),where('vendedorEmail','==',oldEmail))),
-      getDocs(query(collection(db,'orders_deleted'),where('vendedorEmail','==',oldEmail)))
+      getDocs(query(collection(db,'orders_dev'),where('vendedorEmail','==',oldEmail))),
+      getDocs(query(collection(db,'orders_deleted_dev'),where('vendedorEmail','==',oldEmail)))
     ]);
     if (newUserSnap.exists() && newUserSnap.data()?.active === true) {
       throw new Error('El correo nuevo ya tiene un acceso activo en FitFlow');
@@ -7747,7 +7747,7 @@ async function previewVendorEmailMigration(vendorIndex, newEmailInput='') {
     const pdfs=[];
     const chunks=[];
     for (const order of orders) {
-      const pdfSnap=await getDoc(doc(db,'order_pdfs',order.id));
+      const pdfSnap=await getDoc(doc(db,'order_pdfs_dev',order.id));
       if (!pdfSnap.exists()) continue;
       const pdf=pdfSnap.data();
       pdfs.push({id:order.id,data:pdf});
@@ -7755,7 +7755,7 @@ async function previewVendorEmailMigration(vendorIndex, newEmailInput='') {
       const total=Number(pdf.chunks||0);
       for (let index=0; index<total; index++) {
         const chunkId=`${order.id}_${String(index).padStart(4,'0')}`;
-        const chunkSnap=await getDoc(doc(db,'order_pdf_chunks',chunkId));
+        const chunkSnap=await getDoc(doc(db,'order_pdf_chunks_dev',chunkId));
         if (chunkSnap.exists()) {
           chunks.push({id:chunkId,data:chunkSnap.data()});
           chunkCount++;
@@ -7841,23 +7841,23 @@ async function executeVendorEmailMigration() {
     }
     currentVendor.email=migration.newEmail;
 
-    migration.orders.forEach(item=>batch.set(doc(db,'orders',item.id),{
+    migration.orders.forEach(item=>batch.set(doc(db,'orders_dev',item.id),{
       vendedorEmail:migration.newEmail,
       accessEmailMigratedFrom:migration.oldEmail,
       accessEmailMigratedAt:now,
       accessEmailMigratedBy:actor
     },{merge:true}));
-    migration.deleted.forEach(item=>batch.set(doc(db,'orders_deleted',item.id),{
+    migration.deleted.forEach(item=>batch.set(doc(db,'orders_deleted_dev',item.id),{
       vendedorEmail:migration.newEmail,
       accessEmailMigratedFrom:migration.oldEmail,
       accessEmailMigratedAt:now,
       accessEmailMigratedBy:actor
     },{merge:true}));
-    migration.pdfs.forEach(item=>batch.set(doc(db,'order_pdfs',item.id),{
+    migration.pdfs.forEach(item=>batch.set(doc(db,'order_pdfs_dev',item.id),{
       vendedorEmail:migration.newEmail,
       accessEmailMigratedAt:now
     },{merge:true}));
-    migration.chunks.forEach(item=>batch.set(doc(db,'order_pdf_chunks',item.id),{
+    migration.chunks.forEach(item=>batch.set(doc(db,'order_pdf_chunks_dev',item.id),{
       vendedorEmail:migration.newEmail,
       accessEmailMigratedAt:now
     },{merge:true}));
@@ -7877,7 +7877,7 @@ async function executeVendorEmailMigration() {
       updatedAt:now,
       updatedBy:actor
     },{merge:true});
-    batch.set(doc(db,'config','vendors'),{value:vendors});
+    batch.set(doc(db,'config_dev','vendors'),{value:vendors});
     const auditId=`email_${Date.now()}_${migration.vendorIndex}`;
     batch.set(doc(db,'fitflow_admin_audit',auditId),{
       action:'vendor_access_email_migrated',
@@ -7966,7 +7966,7 @@ async function saveEditVendor(i) {
   try {
     showLoading('Actualizando autorización...');
     await syncFitFlowAccessDirectory(vendors, previousVendors);
-    await window._fbSDK.setDoc(window._fbSDK.doc(window._fbDB,'config','vendors'), {value:vendors});
+    await window._fbSDK.setDoc(window._fbSDK.doc(window._fbDB,'config_dev','vendors'), {value:vendors});
     LS._setLocal('vendors',vendors);
     renderVendorList(); buildLoginSelect(); closeModal();
     toast(i === 'new' ? 'Vendedor agregado ✓' : 'Usuario actualizado ✓','ok');
@@ -8006,7 +8006,7 @@ async function confirmDelVendor(i) {
   try {
     showLoading('Revocando autorización...');
     await syncFitFlowAccessDirectory(vendors, previousVendors);
-    await window._fbSDK.setDoc(window._fbSDK.doc(window._fbDB,'config','vendors'), {value:vendors});
+    await window._fbSDK.setDoc(window._fbSDK.doc(window._fbDB,'config_dev','vendors'), {value:vendors});
     LS._setLocal('vendors',vendors);
     renderVendorList(); buildLoginSelect(); closeModal(); toast('Usuario eliminado','ok');
   } catch(e) {
@@ -8132,7 +8132,7 @@ async function registerFitFlowOffline() {
   if (!('serviceWorker' in navigator)) return;
   if (!window.isSecureContext || location.protocol === 'file:') return;
   try {
-    const reg = await navigator.serviceWorker.register('fitflow_sw.js', {scope:'./', updateViaCache:'none'});
+    const reg = await navigator.serviceWorker.register('fitflow_sw_dev.js', {scope:'./', updateViaCache:'none'});
     if (reg?.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     reg.addEventListener('updatefound', () => {
       const next = reg.installing;

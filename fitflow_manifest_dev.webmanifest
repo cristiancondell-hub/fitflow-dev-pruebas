@@ -3,7 +3,7 @@
   "short_name": "FitFlow DEV",
   "id": "./fitflow-dev",
   "description": "Sistema de pedidos Centro Fitting",
-  "start_url": "./fitflow_dev.html",
+  "start_url": "./fitflow.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f0f4ff",

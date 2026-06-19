@@ -1,6 +1,6 @@
-const FITFLOW_CACHE_V12 = 'fitflow-dev-shell-2026-06-19-12';
+const FITFLOW_CACHE_V13 = 'fitflow-dev-shell-2026-06-19-13';
 const FITFLOW_APP_SHELL = [
-  './fitflow.html',
+  './fitflow_dev.html',
   './fitflow_manifest_dev.webmanifest',
   './icon-dev-192.png',
   './icon-dev-512.png',
@@ -17,7 +17,7 @@ const FITFLOW_STATIC_HOSTS = new Set([
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(FITFLOW_CACHE_V12)
+    caches.open(FITFLOW_CACHE_V13)
       .then(cache => cache.addAll(FITFLOW_APP_SHELL))
       .then(() => self.skipWaiting())
   );
@@ -28,7 +28,7 @@ self.addEventListener('activate', event => {
     caches.keys()
       .then(keys => Promise.all(
         keys
-          .filter(key => key.startsWith('fitflow-dev-shell-') && key !== FITFLOW_CACHE_V12)
+          .filter(key => key.startsWith('fitflow-dev-shell-') && key !== FITFLOW_CACHE_V13)
           .map(key => caches.delete(key))
       ))
       .then(() => self.clients.claim())
@@ -40,18 +40,18 @@ self.addEventListener('message', event => {
 });
 
 async function networkFirstNavigation(request) {
-  const cache = await caches.open(FITFLOW_CACHE_V12);
+  const cache = await caches.open(FITFLOW_CACHE_V13);
   try {
     const response = await fetch(request);
-    if (response && response.ok) cache.put('./fitflow.html', response.clone());
+    if (response && response.ok) cache.put('./fitflow_dev.html', response.clone());
     return response;
   } catch (error) {
-    return (await cache.match('./fitflow.html')) || Response.error();
+    return (await cache.match('./fitflow_dev.html')) || Response.error();
   }
 }
 
 async function staleWhileRevalidate(request) {
-  const cache = await caches.open(FITFLOW_CACHE_V12);
+  const cache = await caches.open(FITFLOW_CACHE_V13);
   const cached = await cache.match(request);
   const network = fetch(request)
     .then(response => {

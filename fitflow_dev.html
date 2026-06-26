@@ -828,7 +828,7 @@ const LOGO_TYPES = {
   header:{label:'Logo banner', local:'logo_header', doc:'logo_header', meta:'logo_header_meta'},
   document:{label:'Logo documentos PDF', local:'logo_document', doc:'logo_document', meta:'logo_document_meta'}
 };
-const SEND_EMAIL_ENDPOINT = 'https://fitflow-email.cristiancondell.workers.dev';
+const SEND_EMAIL_ENDPOINT = 'https://fitflow-email-dev.cristiancondell.workers.dev';
 const DEFAULT_COMPANY_CONFIG = {
   nombreComercial:'',
   nombre:'COMERCIAL CONDELL LIMITADA',
@@ -7689,7 +7689,7 @@ async function syncFitFlowAccessDirectory(vendors=[], previousVendors=[]) {
   const updatedBy = normalizeEmail(currentUser?.authEmail || currentUser?.email || '');
   const writes = [];
   current.forEach((v, email) => {
-    writes.push(setDoc(doc(window._fbDB,'fitflow_users',email), {
+    writes.push(setDoc(doc(window._fbDB,'fitflow_users_dev',email), {
       email,
       name:v.name || '',
       role:normalizeVendorRole(v),
@@ -7700,7 +7700,7 @@ async function syncFitFlowAccessDirectory(vendors=[], previousVendors=[]) {
   });
   previous.forEach((v, email) => {
     if (!current.has(email)) {
-      writes.push(setDoc(doc(window._fbDB,'fitflow_users',email), {
+      writes.push(setDoc(doc(window._fbDB,'fitflow_users_dev',email), {
         email,
         name:v.name || '',
         role:normalizeVendorRole(v),
@@ -7737,7 +7737,7 @@ async function previewVendorEmailMigration(vendorIndex, newEmailInput='') {
     const { collection, doc, getDoc, getDocs, query, where } = window._fbSDK;
     const db=window._fbDB;
     const [newUserSnap, orderSnap, deletedSnap] = await Promise.all([
-      getDoc(doc(db,'fitflow_users',newEmail)),
+      getDoc(doc(db,'fitflow_users_dev',newEmail)),
       getDocs(query(collection(db,'orders_dev'),where('vendedorEmail','==',oldEmail))),
       getDocs(query(collection(db,'orders_deleted_dev'),where('vendedorEmail','==',oldEmail)))
     ]);
@@ -7866,7 +7866,7 @@ async function executeVendorEmailMigration() {
       accessEmailMigratedAt:now
     },{merge:true}));
 
-    batch.set(doc(db,'fitflow_users',migration.newEmail),{
+    batch.set(doc(db,'fitflow_users_dev',migration.newEmail),{
       email:migration.newEmail,
       name:currentVendor.name||'',
       role:normalizeVendorRole(currentVendor,migration.vendorIndex),
@@ -7875,7 +7875,7 @@ async function executeVendorEmailMigration() {
       updatedAt:now,
       updatedBy:actor
     },{merge:true});
-    batch.set(doc(db,'fitflow_users',migration.oldEmail),{
+    batch.set(doc(db,'fitflow_users_dev',migration.oldEmail),{
       active:false,
       migratedTo:migration.newEmail,
       updatedAt:now,
@@ -7883,7 +7883,7 @@ async function executeVendorEmailMigration() {
     },{merge:true});
     batch.set(doc(db,'config_dev','vendors'),{value:vendors});
     const auditId=`email_${Date.now()}_${migration.vendorIndex}`;
-    batch.set(doc(db,'fitflow_admin_audit',auditId),{
+    batch.set(doc(db,'fitflow_admin_audit_dev',auditId),{
       action:'vendor_access_email_migrated',
       vendorName:currentVendor.name||'',
       oldEmail:migration.oldEmail,
